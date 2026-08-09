@@ -22,4 +22,10 @@ app.get("/", (req, res) => {
     res.send("Backend is running 🚀");
 });
 
+//Routes import
+import userRouter from "./routes/user.routes.js";
+
+//Routes
+app.use('/api/v1/users',userRouter)
+//https://localhost:5000/api/v1/users/register
 export default app;
