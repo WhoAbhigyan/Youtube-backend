@@ -195,7 +195,7 @@ try{
         throw new ApiError(401,"Invalid refresh token")
     }
 
-    if(decodedToken !== user?.refreshToken){
+    if(incomingRefreshToken !== user?.refreshToken){
         throw new ApiError(401,"Refresh token is expried or used")
     }
     
@@ -208,8 +208,8 @@ try{
 
     return res
     .status(200)
-    .cookies("accessToken",accessToken,options)
-    .cookies("refreshToken",newRefreshToken,options)
+    .cookie("accessToken",accessToken,options)
+    .cookie ("refreshToken",newRefreshToken,options)
     .json(
         new ApiResponse(
             200,
