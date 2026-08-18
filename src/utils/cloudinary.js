@@ -32,4 +32,23 @@ const uploadOnCloudinary=async(localFilePath)=>{
         }
     }
 }
-export {uploadOnCloudinary};
+
+//delete the url from the cloudinary when the user update the images
+const deleteFromCloudinary=async(publicId)=>{
+    try{
+        if(!publicId){
+            return null
+        }
+        const response=await cloudinary.uploader.destroy(publicId)
+        console.log("Cloudinary delete response:", response)
+        return response
+    
+    } catch(error){
+        console.log("Cloudinary delete error",error)
+        return null
+    }
+}
+export {
+    uploadOnCloudinary,
+    deleteFromCloudinary
+};

@@ -1,7 +1,7 @@
 import {asyncHandler} from '../utils/asyncHandler.js'
 import {ApiError} from '../utils/ApiError.js'
 import {User} from '../models/user.model.js'
-import {uploadOnCloudinary} from '../utils/cloudinary.js'
+import {uploadOnCloudinary,deleteFromCloudinary} from '../utils/cloudinary.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
 import jwt from "jsonwebtoken"
 
@@ -77,8 +77,15 @@ const registerUser=asyncHandler(async(req,res) => {
 
     const user=await User.create({
         fullName,
-        avatar:avatar.url,
-        coverImage:coverImage?.url || "",
+        avatar:{
+            url:avatar.url,
+            public_id:avatar.public_id
+        },
+        coverImage:coverImage
+            ?{
+                url:coverImage.url,
+                public_id:coverImage.public_id
+            }:undefined,
         email,
         password,
         username:username.toLowerCase()
@@ -279,11 +286,111 @@ const updateAccountDetails=asyncHandler(async(req,res)=>{
         .json(new ApiResponse(200,user,"Account details updated successfully"))
 })
 
+//update avatar image
+const updateAvatarImage=asyncHandler(async(req,res) => {
+    const avatarLocalPath=req.file?.path;
+
+    if (!avatarLocalPath) {
+        throw new ApiError(
+            400,
+            "Avatar file is required in order to update it"
+        );
+    }
+
+    const user=await User.findById(req.user._id);
+
+    if (!user) {
+        throw new ApiError(401, "Unauthorized access");
+    }
+
+    // Save old image public_id
+    const oldAvatarPublicId=user.avatar?.public_id;
+
+    // Upload new image
+    const avatar = await uploadOnCloudinary(avatarLocalPath);
+
+    if (!avatar.url) {
+        throw new ApiError(400, "Upload failed");
+    }
+
+    // Update MongoDB with new avatar image
+    user.avatar={
+        url: avatar.url,
+        public_id: avatar.public_id
+    };  
+
+    await user.save({
+        validateBeforeSave: false
+    });
+
+    // Delete old image from Cloudinary
+    if (oldAvatarPublicId) {
+        await deleteFromCloudinary(oldAvatarPublicId);
+    }
+
+    const updatedUser=await User.findById(user._id)
+        .select("-password -refreshToken");
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                updatedUser,
+                "Avatar image updated successfully"
+            )
+        );
+});
+
+//update cover Image
+const updateCoverImage=asyncHandler(async(req,res)=>{
+    const coverImageLocalPath=req.file?.path
+
+    if(!coverImageLocalPath){
+        throw new ApiError(400,"Cover image file is required in order to udpate it")
+    }
+
+    const user=user.findById(req.user._id)
+
+    if(!user){
+        throw new ApiError("401","Unauthorized access")
+    }
+
+    const oldPublic_id=user.coverImage.file?.public_id
+
+    const coverImage=uploadOnCloudinary(coverImageLocalPath)
+
+    if(!coverImage.url){
+        throw new ApiError(400,"Upload failed")
+    }
+
+    await user.save({
+        validateBeforeSave:false
+    })
+
+    if(oldPublic_id){
+        await deleteFromCloudinary(oldPublic_id)
+    }
+
+    const updatedUser=User.findById(req.user._id)-select("-password -refreshToken")
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                updatedUser,
+                "Cover image updated successfully"
+            )
+        )
+})
 export {registerUser,
         loginUser,
         logoutUser,
         refreshAccessToken,
         changeCurrentPassword,
         getCurrentUser,
-        updateAccountDetails
+        updateAccountDetails,
+        updateAvatarImage,
+        updateCoverImage
 }
