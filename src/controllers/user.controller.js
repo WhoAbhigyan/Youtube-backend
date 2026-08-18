@@ -364,6 +364,10 @@ const updateCoverImage=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Upload failed")
     }
 
+    user.coverImage={
+        url:coverImage.url,
+        public_id:coverImage.public_id
+    }
     await user.save({
         validateBeforeSave:false
     })
