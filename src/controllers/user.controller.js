@@ -264,7 +264,7 @@ const getCurrentUser=asyncHandler(async(req,res)=>{
 const updateAccountDetails=asyncHandler(async(req,res)=>{
     const {fullName,email}=req.body
 
-    if (!fullName || email) {
+    if (!fullName || !email) {
         throw new ApiError(400,"All fields are required")
     }
 
@@ -350,15 +350,15 @@ const updateCoverImage=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Cover image file is required in order to udpate it")
     }
 
-    const user=user.findById(req.user._id)
+    const user=await user.findById(req.user._id)
 
     if(!user){
         throw new ApiError("401","Unauthorized access")
     }
 
-    const oldPublic_id=user.coverImage.file?.public_id
+    const oldPublic_id=user.coverImage?.file.public_id
 
-    const coverImage=uploadOnCloudinary(coverImageLocalPath)
+    const coverImage= await uploadOnCloudinary(coverImageLocalPath)
 
     if(!coverImage.url){
         throw new ApiError(400,"Upload failed")
