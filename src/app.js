@@ -24,8 +24,11 @@ app.get("/", (req, res) => {
 
 //Routes import
 import userRouter from "./routes/user.routes.js";
+import commentRouter from "./routes/comment.routes.js"
 
 //Routes
 app.use('/api/v1/users',userRouter)
 //https://localhost:5000/api/v1/users/register
+app.use('/api/v1/comment',commentRouter)
+
 export default app;

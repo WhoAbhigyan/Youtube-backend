@@ -11,6 +11,7 @@ import {registerUser,
         getWatchHistory,
         getUserChannelProfile
 } from '../controllers/user.controller.js'
+import {addComment}from "../controllers/comment.controller.js"
 import {upload} from '../middlewares/multer.middleware.js'
 import { verifyJWT } from '../middlewares/auth.middleware.js'
 
