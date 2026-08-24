@@ -3,7 +3,7 @@ import {Comment} from "../models/comment.model.js"
 import {ApiError} from "../utils/ApiError.js"
 import {ApiResponse} from "../utils/ApiResponse.js"
 import {asyncHandler} from "../utils/asyncHandler.js"
-import {Video} from "../models/video.model.js"
+import Video from "../models/video.model.js"
 
 
 const getVideoComments = asyncHandler(async (req, res) => {
@@ -18,7 +18,7 @@ const getVideoComments = asyncHandler(async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(videoId)) {
     throw new ApiError(400, "Invalid video ID")
     }
-    
+
     const comments = await Comment.aggregatePaginate(
     Comment.aggregate([
         {
