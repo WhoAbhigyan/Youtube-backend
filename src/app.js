@@ -31,6 +31,6 @@ import likeRouter from "./routes/like.routes.js"
 app.use('/api/v1/users',userRouter)
 //https://localhost:5000/api/v1/users/register
 app.use('/api/v1/comment',commentRouter)
-app.use('/api/v1/likes')
+app.use('/api/v1/likes',likeRouter)
 
 export default app;
