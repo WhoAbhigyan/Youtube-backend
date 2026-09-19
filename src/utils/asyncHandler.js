@@ -11,6 +11,18 @@
 // }
 
 //Promise based async handler
+// OUTER FUNCTION
+//      ↓
+// return middleware function
+//      ↓
+// ────────────────────
+// LATER, REQUEST COMES
+//      ↓
+// middleware runs
+//      ↓
+// Promise.resolve(controller())
+//      ↓
+// catch errors
 const asyncHandler=(requestHandler) => {
      return (req,res,next)=>{
         Promise.resolve(requestHandler(req,res,next)).
