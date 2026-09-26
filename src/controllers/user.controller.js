@@ -381,7 +381,7 @@ const updateCoverImage=asyncHandler(async(req,res)=>{
         await deleteFromCloudinary(oldPublic_id)
     }
 
-    const updatedUser=User.findById(req.user._id).select("-password -refreshToken")
+    const updatedUser= await User.findById(req.user._id).select("-password -refreshToken")
 
     return res
         .status(200)

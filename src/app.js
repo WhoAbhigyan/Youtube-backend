@@ -26,11 +26,13 @@ app.get("/", (req, res) => {
 import userRouter from "./routes/user.routes.js";
 import commentRouter from "./routes/comment.routes.js"
 import likeRouter from "./routes/like.routes.js"
+import tweetRouter from "./routes/tweet.routes.js"
 
 //Routes
 app.use('/api/v1/users',userRouter)
 //https://localhost:5000/api/v1/users/register
 app.use('/api/v1/comment',commentRouter)
 app.use('/api/v1/likes',likeRouter)
+app.use('/api/v1/tweets',tweetRouter)
 
 export default app;
