@@ -54,13 +54,19 @@ const getChannelStats=asyncHandler(async(req,res)=>{
 //Get all the videos uploaded by the channel
 const getChannelVideos = asyncHandler(async (req, res) => {
     const userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
     
     if(!isValidObjectId(userId)){
         throw new ApiError(400,"Invalid User Id")
     }
     
     const videos = await Video.find(
-        { owner: userId }).sort({ createdAt: -1 });
+        { owner: userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit);
     
     return res
     .status(200)
