@@ -59,7 +59,10 @@ const userSchema=new Schema(
         timestamps:true
     }
 )
-
+//Never use next() with an async Mongoose middleware. 
+//An async function returns a Promise,
+//so Mongoose waits for the Promise to resolve instead of using next() to continue.
+//isModified->Has the password changed since this document was loaded/created?
 userSchema.pre("save", async function(next) {
     if (this.isModified("password")) {
         this.password = await bcrypt.hash(this.password, 10);
