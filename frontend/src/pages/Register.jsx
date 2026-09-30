@@ -1,123 +1,224 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { Link, useNavigate } from "react-router-dom";
+import AuthLayout from "../components/AuthLayout";
+import FileInput from "../components/FileInput";
+import { Notice } from "../components/States";
+import { EyeClosedIcon, EyeOpenIcon } from "../components/Icons";
 import useAuth from "../hooks/useAuth";
+import useDocumentTitle from "../hooks/useDocumentTitle";
+import { getErrorMessage, getErrorStatus } from "../services/api";
+import "./Register.css";
 
-function Register() {
+const USERNAME_PATTERN = /^[a-zA-Z0-9_.]+$/;
+
+const Register = () => {
+    useDocumentTitle("Create account");
+
     const navigate = useNavigate();
-    const { setUser } = useAuth();
+    const { register, login } = useAuth();
 
-    const [username, setUsername] = useState("");
-    const [email, setEmail] = useState("");
-    const [fullName, setFullName] = useState("");
-    const [password, setPassword] = useState("");
+    const [form, setForm] = useState({
+        fullName: "",
+        username: "",
+        email: "",
+        password: ""
+    });
     const [avatar, setAvatar] = useState(null);
     const [coverImage, setCoverImage] = useState(null);
-
-    const [loading, setLoading] = useState(false);
+    const [reveal, setReveal] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+    const [submitting, setSubmitting] = useState(false);
     const [error, setError] = useState("");
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
+    const update = (key) => (event) => {
+        setForm((current) => ({ ...current, [key]: event.target.value }));
+        setFieldErrors((current) => ({ ...current, [key]: "" }));
+    };
+
+    const validate = () => {
+        const errors = {};
+
+        if (!form.fullName.trim()) errors.fullName = "Full name is required";
+        if (!USERNAME_PATTERN.test(form.username.trim())) {
+            errors.username = "Letters, numbers, dots and underscores only";
+        }
+        if (!/^\S+@\S+\.\S+$/.test(form.email.trim())) errors.email = "Enter a valid email address";
+        if (form.password.length < 8) errors.password = "Use at least 8 characters";
+        if (!avatar) errors.avatar = "An avatar is required";
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleSubmit = async (event) => {
+        event.preventDefault();
+        if (submitting) return;
 
         setError("");
-        setLoading(true);
+        if (!validate()) return;
 
+        const payload = new FormData();
+        payload.append("fullName", form.fullName.trim());
+        payload.append("username", form.username.trim());
+        payload.append("email", form.email.trim());
+        payload.append("password", form.password);
+        payload.append("avatar", avatar);
+        if (coverImage) payload.append("coverImage", coverImage);
+
+        setSubmitting(true);
         try {
-            const formData = new FormData();
-
-            formData.append("username", username);
-            formData.append("email", email);
-            formData.append("fullName", fullName);
-            formData.append("password", password);
-            formData.append("avatar", avatar);
-            formData.append("coverImage", coverImage);
-
-            // Register
-            await api.post("/users/register", formData);
-
-            // Automatically login after registration
-            const loginResponse = await api.post("/users/login", {
-                email,
-                password
-            });
-
-            // Save logged-in user
-            setUser(loginResponse.data.message);
-
-            // Go to home
-            navigate("/");
-
-        } catch (error) {
-            console.log("REGISTER ERROR:", error);
-
-            setError(
-                error.response?.data?.message || "Registration failed"
-            );
+            await register(payload);
+            // the backend does not authenticate on register, so sign in right after
+            await login({ email: form.email.trim(), password: form.password });
+            navigate("/", { replace: true });
+        } catch (err) {
+            console.error("Registration failed:", err);
+            const status = getErrorStatus(err);
+            if (status === 409) setError("That username or email is already registered.");
+            else if (status === 400) setError(getErrorMessage(err, "Please check the details you entered."));
+            else setError(getErrorMessage(err, "Registration failed. Please try again."));
         } finally {
-            setLoading(false);
+            setSubmitting(false);
         }
     };
 
     return (
-        <main>
-            <h1>Register</h1>
+        <AuthLayout
+            title="Create your channel"
+            subtitle="Pick a handle, add a face and start publishing."
+            footer={
+                <span className="auth__switch">
+                    Already have an account?
+                    <Link to="/login" className="auth__link">
+                        Sign in
+                    </Link>
+                </span>
+            }
+        >
+            <form className="auth__form" onSubmit={handleSubmit} noValidate>
+                {error && <Notice tone="error">{error}</Notice>}
 
-            <form onSubmit={handleSubmit}>
+                <div className="register__grid">
+                    <div className="field">
+                        <label className="label" htmlFor="register-fullname">
+                            Full name
+                        </label>
+                        <input
+                            id="register-fullname"
+                            className="input"
+                            type="text"
+                            autoComplete="name"
+                            value={form.fullName}
+                            onChange={update("fullName")}
+                            placeholder="Ada Lovelace"
+                            aria-invalid={Boolean(fieldErrors.fullName)}
+                        />
+                        {fieldErrors.fullName && <p className="error-text">{fieldErrors.fullName}</p>}
+                    </div>
 
-                <input
-                    type="text"
-                    placeholder="Username"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                />
+                    <div className="field">
+                        <label className="label" htmlFor="register-username">
+                            Username
+                        </label>
+                        <div className="register__username">
+                            <span className="register__at">@</span>
+                            <input
+                                id="register-username"
+                                className="input"
+                                type="text"
+                                autoComplete="username"
+                                value={form.username}
+                                onChange={update("username")}
+                                placeholder="adalovelace"
+                                aria-invalid={Boolean(fieldErrors.username)}
+                            />
+                        </div>
+                        {fieldErrors.username && <p className="error-text">{fieldErrors.username}</p>}
+                    </div>
 
-                <input
-                    type="email"
-                    placeholder="Email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                />
+                    <div className="field">
+                        <label className="label" htmlFor="register-email">
+                            Email
+                        </label>
+                        <input
+                            id="register-email"
+                            className="input"
+                            type="email"
+                            autoComplete="email"
+                            value={form.email}
+                            onChange={update("email")}
+                            placeholder="you@example.com"
+                            aria-invalid={Boolean(fieldErrors.email)}
+                        />
+                        {fieldErrors.email && <p className="error-text">{fieldErrors.email}</p>}
+                    </div>
 
-                <input
-                    type="text"
-                    placeholder="Full Name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                />
+                    <div className="field">
+                        <label className="label" htmlFor="register-password">
+                            Password
+                        </label>
+                        <div className="input-affix">
+                            <input
+                                id="register-password"
+                                className="input"
+                                type={reveal ? "text" : "password"}
+                                autoComplete="new-password"
+                                value={form.password}
+                                onChange={update("password")}
+                                placeholder="At least 8 characters"
+                                aria-invalid={Boolean(fieldErrors.password)}
+                            />
+                            <button
+                                type="button"
+                                className="input-affix__btn"
+                                onClick={() => setReveal((value) => !value)}
+                                aria-label={reveal ? "Hide password" : "Show password"}
+                                aria-pressed={reveal}
+                            >
+                                {reveal ? <EyeClosedIcon size={18} /> : <EyeOpenIcon size={18} />}
+                            </button>
+                        </div>
+                        {fieldErrors.password ? (
+                            <p className="error-text">{fieldErrors.password}</p>
+                        ) : (
+                            <p className="hint">Minimum 8 characters.</p>
+                        )}
+                    </div>
+                </div>
 
-                <input
-                    type="password"
-                    placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
+                <div className="register__media">
+                    <FileInput
+                        label="Avatar"
+                        required
+                        accept="image/*"
+                        file={avatar}
+                        onChange={(file) => {
+                            setAvatar(file);
+                            setFieldErrors((current) => ({ ...current, avatar: "" }));
+                        }}
+                        error={fieldErrors.avatar}
+                        hint="Square images work best."
+                    />
+                    <FileInput
+                        label="Cover image"
+                        accept="image/*"
+                        file={coverImage}
+                        onChange={setCoverImage}
+                        hint="Optional — used as your channel banner."
+                    />
+                </div>
 
-                <label>Avatar</label>
-
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setAvatar(e.target.files[0])}
-                />
-
-                <label>Cover Image</label>
-
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => setCoverImage(e.target.files[0])}
-                />
-
-                {error && <p>{error}</p>}
-
-                <button type="submit" disabled={loading}>
-                    {loading ? "Creating account..." : "Register"}
+                <button type="submit" className="btn btn--primary btn--lg btn--block" disabled={submitting}>
+                    {submitting && <span className="spinner spinner--sm" />}
+                    {submitting ? "Creating your channel…" : "Create account"}
                 </button>
 
+                <p className="hint register__note">
+                    Your avatar and cover image are uploaded to Cloudinary and stored with your profile.
+                </p>
             </form>
-        </main>
+        </AuthLayout>
     );
-}
+};
 
 export default Register;

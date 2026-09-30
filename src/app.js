@@ -1,6 +1,8 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import { ApiError } from "./utils/ApiError.js";
+import { ApiResponse } from "./utils/ApiResponse.js";
 
 const app = express();
 
@@ -44,5 +46,49 @@ app.use('/api/v1/playlist',playlistRouter)
 app.use('/api/v1/dashboard',dashboardRouter)
 app.use('/api/v1/video',videoRouter)
 app.use('/api/v1/healthcheck',healthCheckRouter)
+
+//Unknown api route -> json 404 instead of the express html error page
+app.use('/api',(req,res)=>{
+    res
+        .status(404)
+        .json(
+            new ApiResponse(
+                404,
+                `Route ${req.originalUrl} not found`
+            )
+        )
+})
+
+//Every controller error reaches here through asyncHandler -> next(err).
+//Without this middleware express answers with an html page that contains the stack trace.
+app.use((err,req,res,next)=>{
+    if(res.headersSent){
+        return next(err)
+    }
+
+    const isApiError=err instanceof ApiError
+    const statusCode=isApiError ? err.statusCode : (err.statusCode || err.status || 500)
+
+    //log unexpected failures on the server, never send them to the client
+    if(!isApiError){
+        console.error("Unhandled error:",err)
+    }
+
+    const message=isApiError
+        ? err.message
+        : statusCode < 500
+            ? err.message || "Request failed"
+            : "Something went wrong"
+
+    res
+        .status(statusCode)
+        .json(
+            new ApiResponse(
+                statusCode,
+                message,
+                err.errors?.length ? err.errors : undefined
+            )
+        )
+})
 
 export default app;

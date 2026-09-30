@@ -8,7 +8,7 @@ import {getVideoComments,
 
 const router=Router()
 
-router.route("/comment").get(verifyJWT,getVideoComments)
+router.route("/comment/:videoId").get(verifyJWT,getVideoComments)
 router.route("/:videoId").post(verifyJWT,addComment)
 router.route("/:commentId").patch(verifyJWT,updateComment)
 router.route("/:commentId").delete(verifyJWT,deleteComment)

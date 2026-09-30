@@ -1,0 +1,150 @@
+.comments {
+    margin-top: 28px;
+}
+
+.comments__head {
+    margin-bottom: 18px;
+}
+
+.comments__title {
+    font-size: var(--fs-lg);
+    font-weight: 600;
+}
+
+.comments__composer {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    margin-bottom: 22px;
+}
+
+.comments__composer-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.comments__input {
+    width: 100%;
+    padding: 6px 2px 10px;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--text);
+    font-size: var(--fs-base);
+    transition: border-color var(--t-fast);
+}
+
+.comments__input::placeholder {
+    color: var(--text-tertiary);
+}
+
+.comments__input:focus {
+    outline: none;
+    border-bottom-color: var(--text);
+}
+
+.comments__composer-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.comments__notice {
+    margin-bottom: 16px;
+}
+
+.comments__list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.comment__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.comment__head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.comment__author {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.comment__handle,
+.comment__time {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}
+
+.comment__text {
+    margin-top: 4px;
+    color: var(--text);
+    font-size: var(--fs-base);
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.comment__actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 6px;
+}
+
+.comment__action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--r-full);
+    color: var(--text-secondary);
+    transition:
+        background-color var(--t-fast),
+        color var(--t-fast);
+}
+
+.comment__action:hover:not(:disabled) {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.comment__action--active {
+    color: var(--accent);
+}
+
+.comment__action--danger:hover:not(:disabled) {
+    color: var(--danger);
+}
+
+.comment__error {
+    margin-top: 6px;
+    color: var(--danger);
+    font-size: var(--fs-xs);
+}
+
+.comments__more {
+    display: flex;
+    justify-content: center;
+    margin-top: 24px;
+}
+
+@media (max-width: 600px) {
+    .comments__composer {
+        gap: 10px;
+    }
+}

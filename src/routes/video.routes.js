@@ -1,6 +1,7 @@
 import {upload} from '../middlewares/multer.middleware.js'
 import Router from "express"
 import { getAllVideos,
+        getFeedVideos,
         uploadVideo,
         getVideoById,
         updateVideo,
@@ -19,6 +20,7 @@ router.post(
     ]),
     uploadVideo
 )
+router.get("/feed",verifyJWT,getFeedVideos)
 router.get("/allVideos",verifyJWT,getAllVideos)
 router.get("/:videoId", verifyJWT, getVideoById);
 router.patch(

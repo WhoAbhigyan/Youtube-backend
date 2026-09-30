@@ -1,0 +1,34 @@
+.route-loader {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    min-height: 70vh;
+    padding: 40px 20px;
+}
+
+.route-loader__mark {
+    animation: route-loader-pulse 1.6s ease-in-out infinite;
+}
+
+.route-loader__spinner {
+    color: var(--accent);
+}
+
+.route-loader__label {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+@keyframes route-loader-pulse {
+    0%,
+    100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.55;
+        transform: scale(0.94);
+    }
+}

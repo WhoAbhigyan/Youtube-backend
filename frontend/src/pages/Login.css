@@ -1,0 +1,11 @@
+.login__lead-icon {
+    position: absolute;
+    left: 13px;
+    color: var(--text-tertiary);
+    pointer-events: none;
+    z-index: 1;
+}
+
+.login__input {
+    padding-left: 42px;
+}

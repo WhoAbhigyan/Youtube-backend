@@ -1,0 +1,84 @@
+.state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 56px 24px;
+    text-align: center;
+    border: 1px dashed var(--border);
+    border-radius: var(--r-lg);
+    background: var(--bg-elevated);
+}
+
+.state__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 58px;
+    height: 58px;
+    margin-bottom: 4px;
+    border-radius: 50%;
+    background: var(--surface);
+    color: var(--text-secondary);
+}
+
+.state__icon--error {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.state--error {
+    border-color: rgba(242, 85, 90, 0.4);
+    background: var(--danger-soft);
+}
+
+.state--error .state__title {
+    color: var(--danger);
+}
+
+.state__title {
+    font-size: var(--fs-md);
+    font-weight: 600;
+}
+
+.state__text {
+    max-width: 44ch;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.6;
+}
+
+.state > .btn {
+    margin-top: 8px;
+}
+
+.notice {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.notice svg {
+    flex: 0 0 auto;
+    margin-top: 1px;
+}
+
+.notice--error {
+    border-color: rgba(242, 85, 90, 0.4);
+    background: var(--danger-soft);
+    color: #ffb3b5;
+}
+
+.notice--success {
+    border-color: rgba(43, 166, 64, 0.4);
+    background: var(--success-soft);
+    color: #8ce0a3;
+}

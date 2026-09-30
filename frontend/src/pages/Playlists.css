@@ -1,0 +1,111 @@
+.playlists {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.playlists__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.playlists__hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text-tertiary);
+    font-size: var(--fs-sm);
+}
+
+/* --------------------------------- card ----------------------------------- */
+
+.pl-card {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    background: var(--bg-elevated);
+    transition:
+        background-color var(--t-fast),
+        border-color var(--t-fast),
+        transform var(--t-fast);
+}
+
+.pl-card:hover {
+    background: var(--surface-hover);
+    border-color: var(--border);
+}
+
+.pl-card:hover .pl-card__thumb {
+    color: var(--accent);
+}
+
+.pl-card__thumb {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md);
+    background: linear-gradient(135deg, var(--surface), var(--surface-hover));
+    color: var(--text-tertiary);
+    transition: color var(--t-fast);
+}
+
+.pl-card__count {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    padding: 2px 8px;
+    border-radius: var(--r-full);
+    background: rgba(0, 0, 0, 0.7);
+    color: #fff;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+}
+
+.pl-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.pl-card__name {
+    font-size: var(--fs-base);
+    font-weight: 600;
+}
+
+.pl-card__description {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+.pl-card__meta {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}
+
+/* -------------------------------- create ---------------------------------- */
+
+.pl-create {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pl-create__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.pl-create .textarea {
+    min-height: 88px;
+}

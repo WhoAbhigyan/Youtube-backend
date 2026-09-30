@@ -1,0 +1,40 @@
+.register__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.register__username {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.register__at {
+    position: absolute;
+    left: 14px;
+    color: var(--text-tertiary);
+    font-size: var(--fs-base);
+    pointer-events: none;
+}
+
+.register__username .input {
+    padding-left: 30px;
+}
+
+.register__media {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+}
+
+.register__note {
+    text-align: center;
+}
+
+@media (max-width: 620px) {
+    .register__grid,
+    .register__media {
+        grid-template-columns: 1fr;
+    }
+}

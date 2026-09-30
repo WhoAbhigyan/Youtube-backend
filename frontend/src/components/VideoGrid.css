@@ -1,0 +1,41 @@
+/* ==========================================================================
+   Responsive video grid.
+   Columns are derived from the available content width (not the viewport),
+   so the sidebar is accounted for automatically and cards never stretch into
+   oversized "featured" tiles on wide screens.
+   ========================================================================== */
+
+.vgrid--grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 28px 18px;
+}
+
+/* keeps the last row from stretching when there is a single item */
+.vgrid--grid > :only-child {
+    max-width: 340px;
+}
+
+.vgrid--list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 1100px;
+}
+
+@media (max-width: 1023px) {
+    .vgrid--grid {
+        gap: 24px 16px;
+    }
+}
+
+@media (max-width: 767px) {
+    .vgrid--grid {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 22px;
+    }
+
+    .vgrid--grid > :only-child {
+        max-width: none;
+    }
+}

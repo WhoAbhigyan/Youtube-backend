@@ -1,0 +1,13 @@
+.history {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+.history__list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}

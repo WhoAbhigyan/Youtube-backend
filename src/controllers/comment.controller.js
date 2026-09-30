@@ -123,7 +123,7 @@ const updateComment = asyncHandler(async (req, res) => {
         throw new ApiError(400,"Inavlid commnet ID")
     }
 
-    const updatedComment= await Comment.findOneAndUpdate(req.user._id,
+    const updatedComment= await Comment.findOneAndUpdate(
         {
             _id:commentId,
             owner:req.user._id
@@ -138,7 +138,7 @@ const updateComment = asyncHandler(async (req, res) => {
         }
     )
 
-    if(!updateComment){
+    if(!updatedComment){
         throw new ApiError(
             404,
             "Comment not found or you are not the owner"
@@ -174,7 +174,7 @@ const deleteComment = asyncHandler(async (req, res) => {
     }
 
     const deleteComment=await Comment.findOneAndDelete({
-        id:commentId,
+        _id:commentId,
         owner:req.user._id
     })
 

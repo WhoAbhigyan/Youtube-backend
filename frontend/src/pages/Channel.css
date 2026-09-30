@@ -1,0 +1,225 @@
+.channel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    max-width: 1500px;
+    margin: 0 auto;
+}
+
+/* ---------------------------------- hero ---------------------------------- */
+
+.channel__hero {
+    overflow: hidden;
+    border-radius: var(--r-lg);
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-soft);
+}
+
+.channel__cover {
+    display: block;
+    width: 100%;
+    aspect-ratio: 6 / 1;
+    object-fit: cover;
+    background: linear-gradient(120deg, #1f1f1f, #2b2b2b 60%, #1b1b1b);
+}
+
+.channel__identity {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 26px 24px;
+}
+
+.channel__avatar {
+    margin-top: -42px;
+    border: 4px solid var(--bg-elevated);
+    border-radius: 50%;
+}
+
+.channel__text {
+    flex: 1;
+    min-width: 0;
+}
+
+.channel__name {
+    font-size: var(--fs-xl);
+    letter-spacing: -0.02em;
+}
+
+.channel__handle {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.channel__cta {
+    flex: 0 0 auto;
+}
+
+.channel__hero-skeleton {
+    border-radius: var(--r-lg);
+    border: 1px solid var(--border-soft);
+    overflow: hidden;
+}
+
+.channel__cover-skeleton {
+    width: 100%;
+    aspect-ratio: 6 / 1;
+    border-radius: 0;
+}
+
+.channel__identity-skeleton {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 0 26px 24px;
+}
+
+.channel__avatar-skeleton {
+    width: 92px;
+    height: 92px;
+    border-radius: 50%;
+    margin-top: -42px;
+    flex: 0 0 auto;
+}
+
+.channel__lines {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex: 1;
+}
+
+.channel__line {
+    width: 220px;
+    height: 20px;
+}
+
+.channel__line--short {
+    width: 130px;
+    height: 12px;
+}
+
+/* ---------------------------------- tabs ---------------------------------- */
+
+.channel__tabs {
+    border-bottom: 1px solid var(--border-soft);
+    padding-bottom: 12px;
+}
+
+.channel__tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+
+/* --------------------------------- grids ---------------------------------- */
+
+.channel__playlists-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+}
+
+.channel__more {
+    display: flex;
+    justify-content: center;
+}
+
+.channel__error {
+    color: var(--danger);
+    font-size: var(--fs-sm);
+    text-align: center;
+}
+
+/* ------------------------------ playlist tile ----------------------------- */
+
+.chan-playlist {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    background: var(--bg-elevated);
+    transition:
+        background-color var(--t-fast),
+        border-color var(--t-fast);
+}
+
+.chan-playlist:hover {
+    background: var(--surface-hover);
+    border-color: var(--border);
+}
+
+.chan-playlist__stack {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+}
+
+.chan-playlist__thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-xs);
+    background-color: var(--surface);
+    background-size: cover;
+    background-position: center;
+    color: var(--text-tertiary);
+    overflow: hidden;
+}
+
+.chan-playlist__thumb--empty {
+    grid-column: 1 / -1;
+}
+
+.chan-playlist__body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.chan-playlist__name {
+    font-size: var(--fs-base);
+    font-weight: 600;
+}
+
+.chan-playlist__meta {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}
+
+.chan-playlist__description {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    line-height: 1.5;
+}
+
+@media (max-width: 720px) {
+    .channel__cover {
+        aspect-ratio: 3 / 1;
+    }
+
+.channel__cover--empty {
+    background: linear-gradient(120deg, #242424, #333 60%, #1f1f1f);
+}
+
+.channel__identity {
+
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 0 18px 20px;
+    }
+
+    .channel__avatar {
+        margin-top: -32px;
+    }
+
+    .channel__cta {
+        width: 100%;
+    }
+}

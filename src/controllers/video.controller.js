@@ -55,6 +55,58 @@ const getAllVideos = asyncHandler(async (req, res) => {
         );
 });
 
+const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+//discovery feed: published videos of everyone (optionally filtered by one channel or a search term)
+const getFeedVideos = asyncHandler(async (req, res) => {
+
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 12;
+    const { search, owner } = req.query;
+
+    const filter = { isPublished: true };
+
+    if (owner) {
+        if (!isValidObjectId(owner)) {
+            throw new ApiError(400, "Invalid Owner Id");
+        }
+        filter.owner = owner;
+    }
+
+    if (search?.trim()) {
+        const pattern = new RegExp(escapeRegExp(search.trim()), "i");
+        filter.$or = [{ title: pattern }, { description: pattern }];
+    }
+
+    const [videos, totalVideos] = await Promise.all([
+        Video.find(filter)
+            .sort({ createdAt: -1 })
+            .skip((page - 1) * limit)
+            .limit(limit)
+            .populate({
+                path: "owner",
+                select: "fullName username avatar"
+            }),
+        Video.countDocuments(filter)
+    ]);
+
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {
+                    videos,
+                    totalVideos,
+                    totalPages: Math.ceil(totalVideos / limit) || 1,
+                    page,
+                    limit
+                },
+                "Video feed fetched successfully"
+            )
+        );
+});
+
 const uploadVideo = asyncHandler(async (req, res) => {
 
     const { title, description } = req.body;
@@ -158,11 +210,17 @@ const getVideoById = asyncHandler(async (req, res) => {
     }
 
 
-    const video = await Video.findById(videoId)
-        .populate({
-            path: "owner",
-            select: "fullName username avatar"
-        });
+    // a view is registered on this fetch: the existing "views" field is incremented
+    // in the same query so the response already carries the updated count.
+    // the frontend requests a video once per videoId, so one page visit = one view.
+    const video = await Video.findByIdAndUpdate(
+        videoId,
+        { $inc: { views: 1 } },
+        { new: true }
+    ).populate({
+        path: "owner",
+        select: "fullName username avatar"
+    });
 
 
     if (!video) {
@@ -387,6 +445,7 @@ const togglePublishStatus = asyncHandler(async (req, res) => {
 });
 export {
     getAllVideos,
+    getFeedVideos,
     uploadVideo,
     getVideoById,
     updateVideo,

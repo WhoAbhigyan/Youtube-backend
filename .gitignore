@@ -118,3 +118,10 @@ dist
 .pnp.*
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Node
+
+# macOS metadata
+.DS_Store
+
+# Multer staging directory for uploaded files (keep the folder, ignore its contents)
+public/temp/*
+!public/temp/.gitkeep

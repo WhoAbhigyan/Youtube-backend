@@ -1,0 +1,41 @@
+.logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    flex: 0 0 auto;
+    padding: 4px;
+    border-radius: var(--r-sm);
+    transition: opacity var(--t-fast);
+}
+
+.logo:hover {
+    opacity: 0.85;
+}
+
+.logo__mark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 21px;
+    border-radius: 6px;
+    background: var(--accent);
+    color: #fff;
+}
+
+.logo__play {
+    margin-left: 2px;
+}
+
+.logo__text {
+    font-size: 1.0625rem;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    white-space: nowrap;
+}
+
+.logo__text-accent {
+    color: var(--text-secondary);
+    font-weight: 500;
+}

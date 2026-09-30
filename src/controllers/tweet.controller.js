@@ -28,17 +28,19 @@ const createTweet=asyncHandler(async(req,res)=>{
     )
 })
 const getUserTweets=asyncHandler(async(req,res)=>{
+    //the route is authenticated, so default to the logged in user
     const {userId}=req.params;
+    const targetUserId=userId || req.user._id;
 
-    if(!userId){
+    if(!targetUserId){
         throw new ApiError(400,"User Id is required")
     }
 
-    if(!isValidObjectId(userId)){
+    if(!isValidObjectId(targetUserId)){
         throw new ApiError(400,"Invalid User Id")
     }
 
-    const user=await User.findById(userId);
+    const user=await User.findById(targetUserId);
 
     if(!user){
         throw new ApiError(404,"User not found")

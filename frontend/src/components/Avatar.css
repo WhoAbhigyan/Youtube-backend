@@ -1,0 +1,29 @@
+.avatar-link {
+    display: inline-flex;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    transition: opacity var(--t-fast);
+}
+
+.avatar-link:hover {
+    opacity: 0.8;
+}
+
+.avatar {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex: 0 0 auto;
+    border-radius: 50%;
+    background: var(--surface-hover);
+    object-fit: cover;
+    color: var(--text-secondary);
+    user-select: none;
+}
+
+.avatar--fallback {
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    background: linear-gradient(140deg, #3a3a3a, #202020);
+    border: 1px solid var(--border);
+}

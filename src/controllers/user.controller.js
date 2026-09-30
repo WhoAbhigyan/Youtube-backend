@@ -6,6 +6,12 @@ import {ApiResponse} from '../utils/ApiResponse.js'
 import jwt from "jsonwebtoken"
 import mongoose from 'mongoose'
 
+//httpOnly cookies are only accepted over plain http in local dev if "secure" is off
+const cookieOptions={
+    httpOnly:true,
+    secure:process.env.NODE_ENV==="production"
+}
+
 
 const generateAccessAndRefreshTokens=async(userId)=>{
     try{
@@ -138,15 +144,10 @@ const loginUser=asyncHandler(async(req,res)=>{
     const loggedInUser=await User.findById(user._id).
     select("-password -refreshToken")
 
-    const options={
-        httpOnly:true,
-        secure:true
-    }
-
     return res
     .status(200)
-    .cookie("accessToken",accessToken,options)
-    .cookie("refreshToken",refreshToken,options)
+    .cookie("accessToken",accessToken,cookieOptions)
+    .cookie("refreshToken",refreshToken,cookieOptions)
     .json(
         new ApiResponse(
             200,
@@ -177,10 +178,7 @@ const logoutUser=asyncHandler(async(req,res)=>{
         }
     )
 
-    const options={
-        httpOnly:true,
-        secure:true
-    }
+    const options=cookieOptions
 
     return res
     .status(200)
@@ -212,12 +210,8 @@ try{
         throw new ApiError(401,"Refresh token is expried or used")
     }
     
-    const options={
-        httpOnly:true,
-        secure:true
-    }
-
-    const {accessToken,newRefreshToken}=await generateAccessAndRefreshTokens(user._id)
+    const options=cookieOptions
+    const {accessToken,refreshToken:newRefreshToken}=await generateAccessAndRefreshTokens(user._id)
 
     return res
     .status(200)
@@ -355,13 +349,13 @@ const updateCoverImage=asyncHandler(async(req,res)=>{
         throw new ApiError(400,"Cover image file is required in order to udpate it")
     }
 
-    const user=await user.findById(req.user._id)
+    const user=await User.findById(req.user._id)
 
     if(!user){
-        throw new ApiError("401","Unauthorized access")
+        throw new ApiError(401,"Unauthorized access")
     }
 
-    const oldPublic_id=user.coverImage?.file.public_id
+    const oldPublic_id=user.coverImage?.public_id
 
     const coverImage= await uploadOnCloudinary(coverImageLocalPath)
 

@@ -1,0 +1,233 @@
+/* ------------------------------ grid variant ------------------------------ */
+
+.vcard--grid {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.vcard__link {
+    display: block;
+    border-radius: var(--r-md);
+}
+
+.vcard__thumb {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--r-md);
+    background: var(--surface);
+    box-shadow: var(--shadow-xs);
+}
+
+.vcard__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition:
+        transform var(--t-slow),
+        filter var(--t-base);
+}
+
+.vcard__link:hover .vcard__img {
+    transform: scale(1.035);
+    filter: brightness(1.04);
+}
+
+.vcard__thumb-fallback {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    color: var(--text-tertiary);
+    font-size: var(--fs-sm);
+}
+
+.vcard__duration {
+    position: absolute;
+    right: 6px;
+    bottom: 6px;
+    padding: 1px 5px;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.82);
+    color: #fff;
+    font-size: var(--fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    font-variant-numeric: tabular-nums;
+}
+
+.vcard__body {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    min-width: 0;
+}
+
+.vcard__avatar {
+    margin-top: 2px;
+}
+
+.vcard__content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+    flex: 1;
+}
+
+.vcard__title {
+    color: var(--text);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    line-height: 1.35;
+    letter-spacing: 0;
+    transition: color var(--t-fast);
+}
+
+.vcard__title:hover {
+    color: #fff;
+}
+
+.vcard__channel {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    transition: color var(--t-fast);
+}
+
+.vcard__channel:hover {
+    color: var(--text);
+}
+
+.vcard__meta {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+/* ----------------------------- compact variant ---------------------------- */
+
+.vcard--compact {
+    display: grid;
+    grid-template-columns: 168px 1fr;
+    gap: 10px;
+    padding: 4px;
+    border-radius: var(--r-md);
+    transition: background-color var(--t-fast);
+}
+
+.vcard--compact:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.vcard__compact-thumb {
+    display: block;
+}
+
+.vcard__compact-thumb .vcard__thumb {
+    border-radius: var(--r-sm);
+}
+
+.vcard__compact-body {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding-top: 2px;
+}
+
+.vcard__compact-title {
+    color: var(--text);
+    font-size: 0.875rem;
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.vcard__compact-title:hover {
+    color: #fff;
+}
+
+.vcard__compact-channel,
+.vcard__compact-meta {
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+}
+
+.vcard__compact-meta {
+    color: var(--text-tertiary);
+}
+
+/* ------------------------------- row variant ------------------------------ */
+
+.vcard--row {
+    display: grid;
+    grid-template-columns: clamp(150px, 20%, 250px) minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px;
+    padding: 10px;
+    border: 1px solid transparent;
+    border-radius: var(--r-md);
+    transition:
+        background-color var(--t-fast),
+        border-color var(--t-fast);
+}
+
+.vcard--row:hover {
+    background: var(--bg-elevated);
+    border-color: var(--border-soft);
+}
+
+.vcard__row-thumb {
+    display: block;
+}
+
+.vcard__row-thumb .vcard__thumb {
+    border-radius: var(--r-sm);
+}
+
+.vcard__row-body {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 0;
+}
+
+.vcard__row-title {
+    color: var(--text);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    line-height: 1.35;
+}
+
+.vcard__row-title:hover {
+    color: #fff;
+}
+
+.vcard__row-meta {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.vcard__row-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+@media (max-width: 600px) {
+    .vcard--compact {
+        grid-template-columns: 150px 1fr;
+    }
+
+    .vcard--row {
+        grid-template-columns: 140px 1fr;
+        gap: 12px;
+    }
+
+    .vcard__row-actions {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+    }
+}

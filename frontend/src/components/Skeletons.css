@@ -1,0 +1,111 @@
+/* matches .vgrid--grid so the loaded grid does not reflow when skeletons clear */
+.skeleton-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 28px 18px;
+}
+
+.skeleton-card__thumb {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    border-radius: var(--r-md);
+}
+
+.skeleton-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding-top: 12px;
+}
+
+.skeleton-card__line {
+    height: 12px;
+    width: 100%;
+}
+
+.skeleton-card__line--title {
+    height: 15px;
+    width: 92%;
+}
+
+.skeleton-card__line--short {
+    width: 60%;
+}
+
+.skeleton-card__meta {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 2px;
+}
+
+.skeleton-card__avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.skeleton-card__meta-text {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    flex: 1;
+    max-width: 70%;
+}
+
+.skeleton-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.skeleton-row__avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    flex: 0 0 auto;
+}
+
+.skeleton-row__content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    max-width: 620px;
+}
+
+.skeleton-row__line {
+    height: 13px;
+    width: 100%;
+}
+
+.skeleton-row__line--short {
+    width: 40%;
+}
+
+.skeleton-stats {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.skeleton-stats__item {
+    height: 104px;
+    border-radius: var(--r-lg);
+}
+
+@media (max-width: 1079px) {
+    .skeleton-stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 767px) {
+    .skeleton-grid {
+        gap: 22px 18px;
+    }
+
+    .skeleton-stats {
+        grid-template-columns: 1fr;
+    }
+}

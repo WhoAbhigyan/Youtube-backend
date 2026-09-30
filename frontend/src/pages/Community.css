@@ -1,0 +1,149 @@
+.community {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    max-width: 780px;
+    margin: 0 auto;
+}
+
+/* -------------------------------- composer -------------------------------- */
+
+.composer {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.composer__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.composer__input {
+    min-height: 84px;
+    background: transparent;
+    border: 0;
+    padding: 4px 2px;
+}
+
+.composer__input:focus {
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+
+.composer__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border-soft);
+}
+
+.composer__count {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    font-variant-numeric: tabular-nums;
+}
+
+.composer__count--max {
+    color: var(--danger);
+}
+
+.community__notice {
+    margin-top: -4px;
+}
+
+.community__hint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}
+
+.community__hint a {
+    color: var(--text-secondary);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+}
+
+/* --------------------------------- posts ---------------------------------- */
+
+.community__list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.community__count {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+}
+
+.post {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 16px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    background: var(--bg-elevated);
+}
+
+.post__body {
+    flex: 1;
+    min-width: 0;
+}
+
+.post__head {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.post__author {
+    font-size: var(--fs-sm);
+    font-weight: 600;
+}
+
+.post__handle,
+.post__time {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+}
+
+.post__content {
+    margin-top: 6px;
+    font-size: var(--fs-base);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+
+.post__delete {
+    flex: 0 0 auto;
+    opacity: 0;
+    transition: opacity var(--t-fast);
+}
+
+.post:hover .post__delete,
+.post__delete:focus-visible {
+    opacity: 1;
+}
+
+.post__delete:hover:not(:disabled) {
+    color: var(--danger);
+}
+
+@media (hover: none) {
+    .post__delete {
+        opacity: 1;
+    }
+}

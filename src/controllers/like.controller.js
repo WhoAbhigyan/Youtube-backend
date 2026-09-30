@@ -213,12 +213,14 @@ const getLikedVideos = asyncHandler(async (req, res) => {
         }
     ]
 
+    const likedVideos=await Like.aggregate(pipeline)
+
     return res
         .status(200)
         .json(
             new ApiResponse(
             200,
-            pipeline,
+            likedVideos,
             "List of liked videos"
             )
     )

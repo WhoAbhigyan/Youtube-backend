@@ -1,0 +1,39 @@
+.subscribe__btn {
+    height: 40px;
+    padding: 0 20px;
+    gap: 8px;
+    font-weight: 600;
+    background: var(--accent);
+    color: #fff;
+    border-color: transparent;
+}
+
+.subscribe__btn:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.subscribe {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.subscribe__error {
+    color: var(--danger);
+    font-size: var(--fs-xs);
+}
+
+.subscribe__btn:active:not(:disabled) {
+    background: var(--accent-active);
+}
+
+.subscribe__btn--on {
+    background: var(--surface-hover);
+    color: var(--text);
+    border-color: var(--border-strong);
+}
+
+.subscribe__btn--on:hover:not(:disabled) {
+    background: #3d3d3d;
+    color: #fff;
+}

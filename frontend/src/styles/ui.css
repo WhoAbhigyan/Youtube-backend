@@ -1,0 +1,461 @@
+/* ==========================================================================
+   Shared UI primitives: buttons, forms, chips, cards, badges, skeletons.
+   ========================================================================== */
+
+/* --------------------------------- Buttons -------------------------------- */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    height: 40px;
+    padding: 0 16px;
+    border: 1px solid transparent;
+    border-radius: var(--r-full);
+    background: var(--surface-hover);
+    color: var(--text);
+    font-size: var(--fs-base);
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+        background-color var(--t-fast),
+        color var(--t-fast),
+        border-color var(--t-fast),
+        transform var(--t-fast),
+        opacity var(--t-fast);
+}
+
+.btn:hover:not(:disabled) {
+    background: var(--surface-active);
+}
+
+.btn:active:not(:disabled) {
+    transform: scale(0.975);
+}
+
+.btn:disabled {
+    opacity: 0.55;
+}
+
+.btn--primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn--primary:hover:not(:disabled) {
+    background: var(--accent-hover);
+}
+
+.btn--primary:active:not(:disabled) {
+    background: var(--accent-active);
+}
+
+.btn--outline {
+    background: transparent;
+    border-color: var(--border-strong);
+}
+
+.btn--outline:hover:not(:disabled) {
+    background: var(--surface-hover);
+    border-color: var(--text-tertiary);
+}
+
+.btn--ghost {
+    background: transparent;
+    color: var(--text-secondary);
+}
+
+.btn--ghost:hover:not(:disabled) {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.btn--danger {
+    background: var(--danger);
+    color: #fff;
+}
+
+.btn--danger:hover:not(:disabled) {
+    background: #d43f44;
+}
+
+.btn--sm {
+    height: 34px;
+    padding: 0 14px;
+    font-size: var(--fs-sm);
+}
+
+.btn--lg {
+    height: 46px;
+    padding: 0 24px;
+    font-size: var(--fs-md);
+}
+
+.btn--block {
+    width: 100%;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 auto;
+    border-radius: var(--r-full);
+    color: var(--text);
+    transition:
+        background-color var(--t-fast),
+        color var(--t-fast),
+        transform var(--t-fast);
+}
+
+.icon-btn:hover:not(:disabled) {
+    background: var(--surface-hover);
+}
+
+.icon-btn:active:not(:disabled) {
+    transform: scale(0.94);
+}
+
+.icon-btn:disabled {
+    color: var(--text-tertiary);
+    opacity: 0.6;
+}
+
+.icon-btn--sm {
+    width: 34px;
+    height: 34px;
+}
+
+/* ---------------------------------- Forms --------------------------------- */
+
+.field {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+
+.label {
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+}
+
+.input,
+.textarea,
+.select {
+    width: 100%;
+    padding: 11px 14px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    border-radius: var(--r-sm);
+    color: var(--text);
+    font-size: var(--fs-base);
+    transition:
+        border-color var(--t-fast),
+        background-color var(--t-fast),
+        box-shadow var(--t-fast);
+}
+
+.input::placeholder,
+.textarea::placeholder {
+    color: var(--text-tertiary);
+}
+
+.input:hover,
+.textarea:hover,
+.select:hover {
+    border-color: var(--border-strong);
+}
+
+.input:focus,
+.textarea:focus,
+.select:focus {
+    outline: none;
+    background: var(--surface-sunken);
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-soft);
+}
+
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+    border-color: var(--danger);
+}
+
+.textarea {
+    min-height: 110px;
+    resize: vertical;
+    line-height: 1.6;
+}
+
+.select {
+    appearance: none;
+    padding-right: 36px;
+    background-image: linear-gradient(45deg, transparent 50%, var(--text-secondary) 50%),
+        linear-gradient(135deg, var(--text-secondary) 50%, transparent 50%);
+    background-position:
+        calc(100% - 18px) 50%,
+        calc(100% - 13px) 50%;
+    background-size:
+        5px 5px,
+        5px 5px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+}
+
+.input-affix {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-affix .input {
+    padding-right: 46px;
+}
+
+.input-affix__btn {
+    position: absolute;
+    right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--r-full);
+    color: var(--text-secondary);
+    transition:
+        background-color var(--t-fast),
+        color var(--t-fast);
+}
+
+.input-affix__btn:hover {
+    background: var(--surface-hover);
+    color: var(--text);
+}
+
+.hint {
+    color: var(--text-tertiary);
+    font-size: var(--fs-xs);
+    line-height: 1.45;
+}
+
+.error-text {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: var(--danger);
+    font-size: var(--fs-sm);
+}
+
+/* ---------------------------------- Chips --------------------------------- */
+
+.chip-row {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-block: 4px;
+    scrollbar-width: none;
+}
+
+.chip-row::-webkit-scrollbar {
+    display: none;
+}
+
+.chip {
+    flex: 0 0 auto;
+    height: 32px;
+    padding: 0 14px;
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-sm);
+    background: var(--bg-elevated);
+    color: var(--text);
+    font-size: var(--fs-sm);
+    font-weight: 500;
+    white-space: nowrap;
+    transition:
+        background-color var(--t-fast),
+        color var(--t-fast),
+        border-color var(--t-fast);
+}
+
+.chip:hover {
+    background: var(--surface-hover);
+}
+
+.chip[aria-pressed="true"] {
+    background: var(--text);
+    border-color: var(--text);
+    color: var(--text-inverse);
+}
+
+/* ---------------------------------- Cards --------------------------------- */
+
+.card {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+}
+
+.panel {
+    background: var(--bg-elevated);
+    border: 1px solid var(--border-soft);
+    border-radius: var(--r-lg);
+    padding: 20px;
+}
+
+.panel__title {
+    font-size: var(--fs-md);
+    font-weight: 600;
+}
+
+.panel__subtitle {
+    margin-top: 4px;
+    color: var(--text-secondary);
+    font-size: var(--fs-sm);
+}
+
+.divider {
+    height: 1px;
+    background: var(--border-soft);
+    border: 0;
+}
+
+/* --------------------------------- Badges --------------------------------- */
+
+.badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    height: 22px;
+    padding: 0 9px;
+    border-radius: var(--r-full);
+    background: var(--surface-hover);
+    color: var(--text-secondary);
+    font-size: var(--fs-xs);
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.badge--success {
+    background: var(--success-soft);
+    color: var(--success);
+}
+
+.badge--warning {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.badge--accent {
+    background: var(--accent-soft);
+    color: var(--accent);
+}
+
+.badge__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+}
+
+/* -------------------------------- Skeletons ------------------------------- */
+
+.skeleton {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface);
+    border-radius: var(--r-sm);
+}
+
+.skeleton::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.06),
+        transparent
+    );
+    transform: translateX(-100%);
+    animation: skeleton-shimmer 1.4s infinite;
+}
+
+@keyframes skeleton-shimmer {
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* --------------------------------- Spinner -------------------------------- */
+
+.spinner {
+    width: 18px;
+    height: 18px;
+    flex: 0 0 auto;
+    border: 2px solid currentColor;
+    border-right-color: transparent;
+    border-radius: 50%;
+    opacity: 0.9;
+    animation: spinner-rotate 640ms linear infinite;
+}
+
+.spinner--sm {
+    width: 14px;
+    height: 14px;
+    border-width: 2px;
+}
+
+.spinner--lg {
+    width: 28px;
+    height: 28px;
+    border-width: 3px;
+}
+
+@keyframes spinner-rotate {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ------------------------------ Text helpers ------------------------------ */
+
+.clamp-1,
+.clamp-2,
+.clamp-3 {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.clamp-1 {
+    -webkit-line-clamp: 1;
+}
+
+.clamp-2 {
+    -webkit-line-clamp: 2;
+}
+
+.clamp-3 {
+    -webkit-line-clamp: 3;
+}
+
+.muted {
+    color: var(--text-secondary);
+}
+
+.dim {
+    color: var(--text-tertiary);
+}
+
+.nowrap {
+    white-space: nowrap;
+}
+
+.truncate {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}

@@ -1,388 +1,231 @@
-import { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { useCallback, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import Avatar from "../components/Avatar";
+import VideoCard from "../components/VideoCard";
+import VideoActions from "../components/VideoActions";
+import SubscribeButton from "../components/SubscribeButton";
+import CommentSection from "../components/CommentSection";
+import { ErrorState } from "../components/States";
+import { SkeletonRow } from "../components/Skeletons";
+import { CloseIcon, FilmIcon } from "../components/Icons";
+import useAuth from "../hooks/useAuth";
+import useDocumentTitle from "../hooks/useDocumentTitle";
+import { authApi, videoApi } from "../services/endpoints";
+import { getErrorMessage, getErrorStatus } from "../services/api";
+import { cx, formatDate, formatDuration, formatViews, pluralize } from "../utils/format";
+import "./WatchVideo.css";
 
-function WatchVideo() {
+const WatchVideo = () => {
     const { videoId } = useParams();
-    const navigate = useNavigate();
+    const { user } = useAuth();
 
     const [video, setVideo] = useState(null);
-    const [recommendedVideos, setRecommendedVideos] = useState([]);
-
+    const [channel, setChannel] = useState(null);
+    const [related, setRelated] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+    const [notFound, setNotFound] = useState(false);
+    const [expanded, setExpanded] = useState(false);
+    const [relatedLoading, setRelatedLoading] = useState(true);
 
-    const [liked, setLiked] = useState(false);
-    const [subscribed, setSubscribed] = useState(false);
-
-    const [comment, setComment] = useState("");
-    const [comments, setComments] = useState([]);
-
-    const getVideo = async () => {
-        try {
-            setLoading(true);
-
-            const response = await api.get(`/video/${videoId}`);
-
-            setVideo(response.data.message);
-        } catch (error) {
-            console.log("GET VIDEO ERROR:", error);
-
-            setError(
-                error.response?.data?.message || "Failed to load video"
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const getRecommendedVideos = async () => {
-        try {
-            const response = await api.get("/video/allVideos");
-
-            const videos = response.data.message?.videos || [];
-
-            setRecommendedVideos(
-                videos.filter((item) => item._id !== videoId)
-            );
-        } catch (error) {
-            console.log("RECOMMENDED VIDEOS ERROR:", error);
-        }
-    };
+    useDocumentTitle(video?.title ?? "Watch");
 
     useEffect(() => {
-        getVideo();
-        getRecommendedVideos();
+        let active = true;
+
+        setLoading(true);
+        setError("");
+        setNotFound(false);
+        setVideo(null);
+        setChannel(null);
+        setExpanded(false);
+        window.scrollTo({ top: 0 });
+
+        videoApi
+            .byId(videoId)
+            .then(async (data) => {
+                if (!active) return;
+                setVideo(data);
+
+                if (data.owner?.username) {
+                    try {
+                        const profile = await authApi.channel(data.owner.username);
+                        if (active) setChannel(profile);
+                    } catch (err) {
+                        console.warn("Channel profile unavailable:", getErrorMessage(err));
+                    }
+                }
+            })
+            .catch((err) => {
+                console.error("Failed to load video:", err);
+                if (!active) return;
+                if (getErrorStatus(err) === 404) setNotFound(true);
+                setError(getErrorMessage(err, "Unable to load this video"));
+            })
+            .finally(() => {
+                if (active) setLoading(false);
+            });
+
+        return () => {
+            active = false;
+        };
     }, [videoId]);
 
-    const handleLike = () => {
-        setLiked(!liked);
-    };
-
-    const handleSubscribe = () => {
-        setSubscribed(!subscribed);
-    };
-
-    const handleShare = async () => {
+    const loadRelated = useCallback(async () => {
+        setRelatedLoading(true);
         try {
-            if (navigator.share) {
-                await navigator.share({
-                    title: video?.title,
-                    url: window.location.href
-                });
-            } else {
-                await navigator.clipboard.writeText(window.location.href);
-                alert("Video link copied!");
-            }
-        } catch (error) {
-            console.log("Share cancelled");
+            const data = await videoApi.feed({ page: 1, limit: 12 });
+            setRelated(data.videos.filter((item) => item._id !== videoId));
+        } catch (err) {
+            console.error("Failed to load recommendations:", err);
+        } finally {
+            setRelatedLoading(false);
         }
-    };
+    }, [videoId]);
 
-    const handleComment = (e) => {
-        e.preventDefault();
-
-        if (!comment.trim()) {
-            return;
-        }
-
-        const newComment = {
-            id: Date.now(),
-            text: comment
-        };
-
-        setComments([newComment, ...comments]);
-        setComment("");
-    };
+    useEffect(() => {
+        loadRelated();
+    }, [loadRelated]);
 
     if (loading) {
         return (
-            <main className="watch-page">
-                <p className="status-message">Loading video...</p>
-            </main>
+            <div className="watch watch--loading">
+                <div className="watch__primary">
+                    <div className="skeleton watch__player-skeleton" />
+                    <div className="watch__meta-skeleton">
+                        <SkeletonRow lines={1} />
+                        <SkeletonRow lines={1} />
+                    </div>
+                </div>
+                <aside className="watch__secondary">
+                    <SkeletonRow lines={2} />
+                    <SkeletonRow lines={2} />
+                    <SkeletonRow lines={2} />
+                </aside>
+            </div>
         );
     }
 
-    if (error) {
+    if (notFound) {
         return (
-            <main className="watch-page">
-                <p className="status-message">{error}</p>
-            </main>
+            <ErrorState
+                title="Video not found"
+                message="This video may have been removed by its creator."
+            />
         );
     }
 
-    if (!video) {
-        return (
-            <main className="watch-page">
-                <p className="status-message">Video not found.</p>
-            </main>
-        );
+    if (error || !video) {
+        return <ErrorState title="Unable to load this video" message={error} onRetry={() => window.location.reload()} />;
     }
+
+    const isOwner = user && channel && channel._id === user._id;
 
     return (
-        <main className="watch-page">
-
-            <div className="watch-layout">
-
-                {/* LEFT SIDE */}
-
-                <div className="watch-main">
-
-                    <div className="video-player-wrapper">
-                        <video
-                            className="video-player"
-                            controls
-                            poster={video.thumbnail?.url}
-                        >
-                            <source
-                                src={video.videoFile?.url}
-                                type="video/mp4"
-                            />
-
-                            Your browser does not support video playback.
-                        </video>
-                    </div>
-
-                    <h1 className="watch-title">
-                        {video.title}
-                    </h1>
-
-                    <div className="video-meta">
-                        <span>
-                            {video.views} views
-                        </span>
-
-                        <span>•</span>
-
-                        <span>
-                            {new Date(
-                                video.createdAt
-                            ).toLocaleDateString()}
-                        </span>
-                    </div>
-
-                    {/* ACTIONS */}
-
-                    <div className="video-actions">
-
-                        <button
-                            className={
-                                liked
-                                    ? "action-btn active"
-                                    : "action-btn"
-                            }
-                            onClick={handleLike}
-                        >
-                            👍 {liked ? "Liked" : "Like"}
-                        </button>
-
-                        <button className="action-btn">
-                            👎 Dislike
-                        </button>
-
-                        <button
-                            className="action-btn"
-                            onClick={handleShare}
-                        >
-                            ↗ Share
-                        </button>
-
-                        <button className="action-btn">
-                            💾 Save
-                        </button>
-
-                    </div>
-
-                    {/* CHANNEL */}
-
-                    <div className="channel-section">
-
-                        <div className="channel-info">
-
-                            <img
-                                src={video.owner?.avatar?.url}
-                                alt={video.owner?.username}
-                                className="watch-channel-avatar"
-                            />
-
-                            <div>
-                                <h3>
-                                    {video.owner?.fullName}
-                                </h3>
-
-                                <p>
-                                    @{video.owner?.username}
-                                </p>
-                            </div>
-
-                        </div>
-                        <button
-                            className={
-                                subscribed
-                                    ? "subscribe-btn subscribed"
-                                    : "subscribe-btn"
-                            }
-                            onClick={handleSubscribe}
-                        >
-                            {subscribed ? "Subscribed" : "Subscribe"}
-                        </button>
-                    </div>
-
-                    {/* DESCRIPTION */}
-
-                    <div className="description-box">
-
-                        <div className="description-header">
-                            {video.views} views
-                        </div>
-
-                        <p>
-                            {video.description}
-                        </p>
-
-                    </div>
-
-                    {/* COMMENTS */}
-
-                    <section className="comments-section">
-
-                        <h2>
-                            {comments.length} Comments
-                        </h2>
-
-                        <form
-                            className="comment-form"
-                            onSubmit={handleComment}
-                        >
-                            <input
-                                type="text"
-                                placeholder="Add a comment..."
-                                value={comment}
-                                onChange={(e) =>
-                                    setComment(e.target.value)
-                                }
-                            />
-
-                            <button type="submit">
-                                Comment
-                            </button>
-                        </form>
-
-                        <div className="comments-list">
-
-                            {comments.length === 0 ? (
-                                <p className="no-comments">
-                                    No comments yet. Be the first to
-                                    comment!
-                                </p>
-                            ) : (
-                                comments.map((item) => (
-                                    <div
-                                        className="comment"
-                                        key={item.id}
-                                    >
-                                        <div className="comment-avatar">
-                                            U
-                                        </div>
-
-                                        <div className="comment-content">
-                                            <strong>You</strong>
-
-                                            <p>
-                                                {item.text}
-                                            </p>
-                                        </div>
-                                    </div>
-                                ))
-                            )}
-
-                        </div>
-
-                    </section>
-
+        <div className="watch">
+            <div className="watch__primary">
+                <div className="watch__player">
+                    <video
+                        className="watch__video"
+                        controls
+                        playsInline
+                        preload="metadata"
+                        poster={video.thumbnail?.url}
+                        src={video.videoFile?.url}
+                    >
+                        Your browser does not support embedded videos.
+                    </video>
                 </div>
 
-                {/* RIGHT SIDE */}
+                <h1 className="watch__title">{video.title}</h1>
 
-                <aside className="recommendations">
+                <div className="watch__meta">
+                    <span className="badge">
+                        {formatViews(video.views)} views
+                    </span>
+                    <span className="watch__meta-sep" aria-hidden="true">
+                        •
+                    </span>
+                    <span>{formatDate(video.createdAt)}</span>
+                    {video.duration ? (
+                        <>
+                            <span className="watch__meta-sep" aria-hidden="true">
+                                •
+                            </span>
+                            <span>{formatDuration(video.duration)}</span>
+                        </>
+                    ) : null}
+                </div>
 
-                    <div className="recommendation-chips">
+                <div className="watch__row">
+                    <div className="watch__channel">
+                        <Avatar user={video.owner} size={44} to={`/channel/${video.owner?.username}`} />
 
-                        <button className="recommendation-chip active">
-                            All
-                        </button>
-
-                        <button className="recommendation-chip">
-                            Related
-                        </button>
-
-                        <button className="recommendation-chip">
-                            More
-                        </button>
-
+                        <div className="watch__channel-text">
+                            <Link to={`/channel/${video.owner?.username}`} className="watch__channel-name">
+                                {video.owner?.fullName ?? "Unknown channel"}
+                            </Link>
+                            <span className="watch__channel-handle">
+                                @{video.owner?.username ?? "unknown"}
+                                {channel ? ` · ${formatViews(channel.subscribersCount)} subscribers` : ""}
+                            </span>
+                        </div>
                     </div>
 
-                    {recommendedVideos.length === 0 ? (
-                        <p className="no-recommendations">
-                            No more videos yet.
-                        </p>
-                    ) : (
-                        recommendedVideos.map((item) => (
-                            <article
-                                className="recommended-video"
-                                key={item._id}
-                                onClick={() =>
-                                    navigate(`/watch/${item._id}`)
-                                }
-                            >
-                                <div className="recommended-thumbnail-wrapper">
+                    <div className="watch__row-actions">
+                        <VideoActions video={video} />
+                        {channel && !isOwner && (
+                            <SubscribeButton channelId={channel._id} initialSubscribed={channel.isSubscribed} />
+                        )}
+                    </div>
+                </div>
 
-                                    <img
-                                        src={item.thumbnail?.url}
-                                        alt={item.title}
-                                        className="recommended-thumbnail"
-                                    />
+                <div className={cx("watch__description", expanded && "watch__description--expanded")}>
+                    <p className="watch__description-head">
+                        {formatViews(video.views)} views · {formatDate(video.createdAt)}
+                    </p>
+                    <p className="watch__description-text">
+                        {video.description || "No description provided for this video."}
+                    </p>
+                    <button
+                        type="button"
+                        className="watch__description-toggle"
+                        onClick={() => setExpanded((value) => !value)}
+                        aria-expanded={expanded}
+                    >
+                        {expanded ? "Show less" : "Show more"}
+                        <CloseIcon size={14} className={cx("watch__toggle-icon", expanded && "watch__toggle-icon--open")} />
+                    </button>
+                </div>
 
-                                    <span className="recommended-duration">
-                                        {Math.floor(
-                                            item.duration / 60
-                                        )}
-                                        :
-                                        {Math.floor(
-                                            item.duration % 60
-                                        )
-                                            .toString()
-                                            .padStart(2, "0")}
-                                    </span>
-
-                                </div>
-
-                                <div className="recommended-info">
-
-                                    <h3>
-                                        {item.title}
-                                    </h3>
-
-                                    <p>
-                                        {item.owner?.fullName}
-                                    </p>
-
-                                    <p>
-                                        {item.views} views
-                                    </p>
-
-                                </div>
-
-                            </article>
-                        ))
-                    )}
-
-                </aside>
-
+                <CommentSection videoId={video._id} />
             </div>
 
-        </main>
+            <aside className="watch__secondary" aria-label="Recommended videos">
+                {relatedLoading ? (
+                    <>
+                        <SkeletonRow lines={2} />
+                        <SkeletonRow lines={2} />
+                        <SkeletonRow lines={2} />
+                    </>
+                ) : related.length === 0 ? (
+                    <div className="watch__secondary-empty">
+                        <FilmIcon size={26} />
+                        <p>No other videos to recommend yet.</p>
+                    </div>
+                ) : (
+                    <>
+                        <p className="watch__secondary-title">
+                            Up next · {pluralize(related.length, "video")}
+                        </p>
+                        {related.map((item) => (
+                            <VideoCard key={item._id} video={item} variant="compact" />
+                        ))}
+                    </>
+                )}
+            </aside>
+        </div>
     );
-}
+};
 
 export default WatchVideo;
