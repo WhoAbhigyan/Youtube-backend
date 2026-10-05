@@ -22,7 +22,7 @@ const browseItems = [
 ];
 
 const youItems = [
-    { to: "/profile", label: "Your channel", icon: UserIcon },
+    { to: "/profile", label: "Your Account", icon: UserIcon },
     { to: "/history", label: "History", icon: HistoryIcon },
     { to: "/playlists", label: "Playlists", icon: PlaylistIcon },
     { to: "/liked", label: "Liked videos", icon: LikeVideosIcon }

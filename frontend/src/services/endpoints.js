@@ -25,8 +25,11 @@ export const authApi = {
     // GET /api/v1/users/c/:username
     channel: (username) => api.get(`/users/c/${encodeURIComponent(username)}`).then(unwrap),
     // GET /api/v1/users/watch-history
-    watchHistory: () => api.get("/users/watch-history").then(unwrap)
-};
+    watchHistory: () => api.get("/users/watch-history").then(unwrap),
+    // POST /api/v1/users/watch-history/:videoId
+    addToWatchHistory: (videoId) =>
+        api.post(`/users/watch-history/${videoId}`).then(unwrap)
+    };
 
 export const videoApi = {
     // GET /api/v1/video/feed  { page, limit, search, owner }

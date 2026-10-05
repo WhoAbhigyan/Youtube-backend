@@ -3,8 +3,13 @@ import {ApiError} from '../utils/ApiError.js'
 import {User} from '../models/user.model.js'
 import {uploadOnCloudinary,deleteFromCloudinary} from '../utils/cloudinary.js'
 import {ApiResponse} from '../utils/ApiResponse.js'
+import {Video} from '../models/video.model.js'
+import { EmailVerification } from '../models/emailVerification.model.js'
+import crypto from "crypto"
+import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
-import mongoose from 'mongoose'
+import mongoose ,{isValidObjectId}from 'mongoose'
+import transporter from '../utils/mailer.js'
 
 //httpOnly cookies are only accepted over plain http in local dev if "secure" is off
 const cookieOptions={
@@ -56,6 +61,19 @@ const registerUser=asyncHandler(async(req,res) => {
     if(!email.includes("@") || email.endsWith("@") || email.startsWith("@")){
         throw new ApiError(400,"valid email is required")
     }
+
+    //check if email is verified or not before registering the user on board
+    const normalizedEmail = email.toLowerCase().trim();
+    const emailVerification=await EmailVerification.findOne({
+        email:normalizedEmail,
+        isVerified:true
+    })
+    if(!emailVerification){
+    throw new ApiError(
+        400,
+        "Please verify your email before registering"
+    );
+}
     const existedUser = await User.findOne({
         $or:[{username},{email}]
     })
@@ -93,11 +111,14 @@ const registerUser=asyncHandler(async(req,res) => {
                 url:coverImage.url,
                 public_id:coverImage.public_id
             }:undefined,
-        email,
+        email:normalizedEmail,
         password,
         username:username.toLowerCase()
     })
 
+    await EmailVerification.deleteOne({
+    email: normalizedEmail
+    })
     const createdUser=await User.findById(user._id).select(
         "-password -refreshToken"
     )
@@ -108,6 +129,98 @@ const registerUser=asyncHandler(async(req,res) => {
     return res.status(201).json(
         new ApiResponse(200,createdUser,"User registered Successfully")
     )
+})
+
+//Send EMAIL OTP
+const sendEmailOTP=asyncHandler(async(req,res)=>{
+    const {email}=req.body
+    
+    if(!email){
+        throw new ApiError(400,"Email is required")
+    }
+
+    const normalizeEmail=email.toLowerCase().trim()
+
+    const existingUser=await User.findOne({
+        email:normalizeEmail
+    })
+    if(existingUser){
+        throw new ApiError(409,"User with emial already exists")
+    }
+    
+    const otp=crypto.randomInt(100000,1000000).toString()
+    const otpHash=await bcrypt.hash(otp,10)
+    
+    const expiresAt=new Date(Date.now()+10*60*1000)
+
+    await EmailVerification.findOneAndUpdate(
+        {email:normalizeEmail},
+        {
+            email:normalizeEmail,
+            otpHash,
+            expiresAt,
+            isVerified:false
+        },
+        {
+            upsert:true,//update + insert
+            new:true
+        }
+    )
+
+    await transporter.sendMail({
+        from:process.env.MAIL_USER,
+        to:normalizeEmail,
+        subject:"Verify your email",
+        text:`Your OTP is ${otp}. It expires in 10 minutes.`
+    })
+
+    return res.status(200).json(
+        new ApiResponse(
+            200,
+            null,
+            "OTP sent succesfully"
+        )
+    )
+})
+
+// Verify email using OTP
+const verifyEmailOTP=asyncHandler(async(req,res)=>{
+    const {email,otp}=req.body
+
+    if(!email||!otp){
+        throw new ApiError(400,"Email and OTP are required")
+    }
+
+    const normalizedEmail = email.toLowerCase().trim();
+    
+    const verification= await EmailVerification.findOne({
+        email:normalizedEmail
+    })
+
+    if(!verification){
+        throw new ApiError(404, "OTP not found. Please request a new OTP")
+    }
+
+    if(verification.expiresAt<new Date()){
+        throw new ApiError(400,"OTP has expired")
+    }
+
+    const isValid=await bcrypt.compare(otp,verification.otpHash)
+
+    if (!isValid) {
+    throw new ApiError(400, "Invalid OTP")
+    }
+
+    verification.isVerified = true
+    await verification.save()
+
+    return res.status(200).json(
+    new ApiResponse(
+        200,
+        {},
+        "Email verified successfully"
+    )
+    );
 })
 
 //Login User
@@ -486,7 +599,7 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
                                 {
                                     $project:{
                                         fullName:1,
-                                        userName:1,
+                                        username:1,
                                         avatar:1
                                     }
                                 },
@@ -516,6 +629,42 @@ const getWatchHistory=asyncHandler(async(req,res)=>{
     )
 })
 
+// add to watch history
+const addToWatchHistory = asyncHandler(async (req, res) => {
+
+    const { videoId } = req.params;
+    if (!videoId) {
+        throw new ApiError(400, "Video Id is required");
+    }
+    if (!isValidObjectId(videoId)) {
+        throw new ApiError(400, "Invalid Video Id");
+    }
+
+    const video = await Video.findById(videoId);
+
+    if (!video) {
+        throw new ApiError(404, "Video not found");
+    }
+
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $addToSet: {
+                watchHistory: videoId
+            }
+        }
+    );
+    return res
+        .status(200)
+        .json(
+            new ApiResponse(
+                200,
+                {},
+                "Video added to watch history"
+            )
+        );
+});
+
 export {registerUser,
         loginUser,
         logoutUser,
@@ -526,5 +675,8 @@ export {registerUser,
         updateAvatarImage,
         updateCoverImage,
         getUserChannelProfile,
-        getWatchHistory
+        getWatchHistory,
+        addToWatchHistory,
+        sendEmailOTP,
+        verifyEmailOTP
 }

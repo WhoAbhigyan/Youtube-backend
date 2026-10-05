@@ -9,7 +9,10 @@ import {registerUser,
         updateAvatarImage,
         updateCoverImage,
         getWatchHistory,
-        getUserChannelProfile
+        addToWatchHistory,
+        getUserChannelProfile,
+        sendEmailOTP,
+        verifyEmailOTP,
 } from '../controllers/user.controller.js'
 import {addComment}from "../controllers/comment.controller.js"
 import {upload} from '../middlewares/multer.middleware.js'
@@ -55,4 +58,7 @@ router.route("/update-cover-image").patch(
 
 router.route("/c/:username").get(verifyJWT,getUserChannelProfile)
 router.route("/watch-history").get(verifyJWT,getWatchHistory)
+router.route("/watch-history/:videoId").post(verifyJWT, addToWatchHistory);
+router.route("/send-email-otp").post(sendEmailOTP)
+router.route("/verify-email-otp").post(verifyEmailOTP);
 export default router
