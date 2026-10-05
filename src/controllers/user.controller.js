@@ -10,6 +10,8 @@ import bcrypt from 'bcrypt'
 import jwt from "jsonwebtoken"
 import mongoose ,{isValidObjectId}from 'mongoose'
 import transporter from '../utils/mailer.js'
+import sendWelcomeEmail from "../utils/sendWelcomeEmail.js";
+
 
 //httpOnly cookies are only accepted over plain http in local dev if "secure" is off
 const cookieOptions={
@@ -46,7 +48,7 @@ const registerUser=asyncHandler(async(req,res) => {
      //return response
 
      const {username,fullName,email,password}=req.body
-     console.log("email: ",email)
+    //  console.log("email: ",email)
 
     //  if(fullName===""){
     //     throw new ApiError(400,"fullname is required")
@@ -116,14 +118,27 @@ const registerUser=asyncHandler(async(req,res) => {
         username:username.toLowerCase()
     })
 
-    await EmailVerification.deleteOne({
-    email: normalizedEmail
-    })
     const createdUser=await User.findById(user._id).select(
         "-password -refreshToken"
     )
-    if(!createdUser){
-        throw new ApiError(500,"Something went wrong while registreing the user")
+
+    await EmailVerification.deleteOne({
+    email: normalizedEmail
+    })
+
+    if(!createdUser) {
+        throw new ApiError(500,"Something went wrong while registering the user")
+    }
+
+    //Sends the user a welcome email after the user is successfully registered
+    try {
+    await sendWelcomeEmail(
+        createdUser.email,
+        createdUser.fullName,
+        createdUser.username
+    );
+    } catch (error) {
+    console.error("Welcome email failed:", error);
     }
 
     return res.status(201).json(

@@ -17,11 +17,13 @@ import {registerUser,
 import {addComment}from "../controllers/comment.controller.js"
 import {upload} from '../middlewares/multer.middleware.js'
 import { verifyJWT } from '../middlewares/auth.middleware.js'
+import cleanupTempFiles from "../middlewares/cleanupTempFiles.middleware.js";
 
 const router=Router()
 
 //Public routes
 router.route('/register').post(
+    cleanupTempFiles,
     upload.fields([
         {
             name:"avatar",
